@@ -1,0 +1,1853 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>משאלי מליאה - מוקאפ וואטסאפ v1.2</title>
+  <style>
+    :root {
+      --navy: #14213d;
+      --navy-2: #1d3158;
+      --green: #1fa855;
+      --wa: #25d366;
+      --red: #c0392b;
+      --amber: #f59e0b;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d9e1ec;
+      --soft: #f5f7fb;
+      --panel: #ffffff;
+      --chip: #eef4f7;
+      --shadow: 0 18px 40px rgba(18, 33, 61, .12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      min-height: 100%;
+      margin: 0;
+      background: #eef3f8;
+      color: var(--ink);
+      font-family: Heebo, Assistant, Rubik, Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 68px;
+      background: rgba(255, 255, 255, .94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 260px;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--navy);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .surface-tabs {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      border-radius: 8px;
+    }
+
+    .surface-tabs button,
+    .mode-tabs button,
+    .scenario-tabs button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 9px 13px;
+      font-weight: 700;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .surface-tabs button.active,
+    .mode-tabs button.active,
+    .scenario-tabs button.active {
+      background: #fff;
+      color: var(--navy);
+      box-shadow: 0 1px 4px rgba(20, 33, 61, .12);
+    }
+
+    .version-pill {
+      margin-inline-start: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #f2d39b;
+      background: #fff8eb;
+      color: #8a5a05;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .workspace {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 22px;
+      flex: 1;
+    }
+
+    .surface {
+      display: none;
+    }
+
+    .surface.active {
+      display: block;
+    }
+
+    .whatsapp-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 350px) minmax(360px, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .control-panel,
+    .plain-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .control-panel {
+      padding: 18px;
+      position: sticky;
+      top: 88px;
+    }
+
+    .panel-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .panel-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .scenario-tabs {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .scenario-tabs button {
+      border: 1px solid var(--line);
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: start;
+      padding: 10px 12px;
+    }
+
+    .scenario-tabs button.active {
+      border-color: #b7dfc4;
+      background: #edf9f1;
+      color: #176d3a;
+      box-shadow: none;
+    }
+
+    .scenario-tabs .amber.active {
+      border-color: #f5cf8d;
+      background: #fff6e5;
+      color: #8a5a05;
+    }
+
+    .scenario-tabs .danger.active {
+      border-color: #f3b9b3;
+      background: #fff1ef;
+      color: #a73428;
+    }
+
+    .tiny-note {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .phone-zone {
+      min-height: calc(100vh - 112px);
+      display: grid;
+      place-items: start center;
+      padding: 8px 0 28px;
+    }
+
+    .phone {
+      width: min(390px, 100%);
+      aspect-ratio: 390 / 812;
+      min-height: 720px;
+      border-radius: 34px;
+      background: #101418;
+      padding: 12px;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, .32);
+      position: relative;
+    }
+
+    .phone::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      width: 120px;
+      height: 22px;
+      transform: translateX(-50%);
+      background: #101418;
+      border-radius: 0 0 14px 14px;
+      z-index: 3;
+    }
+
+    .phone-screen {
+      height: 100%;
+      border-radius: 26px;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(234, 229, 218, .93), rgba(234, 229, 218, .93)),
+        repeating-linear-gradient(45deg, #d7cec0 0 1px, transparent 1px 16px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wa-header {
+      height: 74px;
+      padding: 22px 14px 10px;
+      background: #075e54;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .wa-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #128c7e;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      border: 2px solid rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+
+    .wa-name {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .wa-status {
+      margin-top: 3px;
+      font-size: 11px;
+      opacity: .85;
+    }
+
+    .wa-actions {
+      margin-inline-start: auto;
+      display: flex;
+      gap: 10px;
+      color: rgba(255,255,255,.9);
+      font-size: 19px;
+    }
+
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bubble {
+      max-width: 88%;
+      border-radius: 8px;
+      box-shadow: 0 1px 1px rgba(0,0,0,.08);
+      padding: 9px 11px 6px;
+      font-size: 13px;
+      line-height: 1.5;
+      position: relative;
+      animation: msgIn .18s ease both;
+    }
+
+    .bubble.bot {
+      align-self: flex-start;
+      background: #fff;
+      border-start-start-radius: 2px;
+    }
+
+    .bubble.me {
+      align-self: flex-end;
+      background: #d9fdd3;
+      border-start-end-radius: 2px;
+    }
+
+    .bubble.warning {
+      border: 1px solid #f2c46f;
+      background: #fff8e7;
+    }
+
+    .bubble .time {
+      display: block;
+      text-align: end;
+      color: #667781;
+      font-size: 10.5px;
+      margin-top: 2px;
+    }
+
+    .wa-button {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid #eef0f2;
+      background: #fff;
+      color: #008ad8;
+      padding: 10px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .wa-button-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .wa-choice {
+      border: 1px solid #dce5ec;
+      background: #fff;
+      color: #0d5f7c;
+      border-radius: 8px;
+      padding: 9px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .wa-choice.amber {
+      color: #966206;
+      background: #fff7e8;
+      border-color: #f3ce8a;
+    }
+
+    .wa-input {
+      height: 58px;
+      padding: 8px 9px 10px;
+      background: #f0eee9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .wa-input .field {
+      flex: 1;
+      background: #fff;
+      border-radius: 22px;
+      padding: 10px 14px;
+      color: #6b7280;
+      font-size: 13px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .send {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--wa);
+      color: #fff;
+      font-weight: 900;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      inset-inline: 12px;
+      bottom: 70px;
+      background: #fff;
+      border-radius: 16px 16px 24px 24px;
+      border: 1px solid #dde5ed;
+      box-shadow: 0 -10px 30px rgba(0,0,0,.16);
+      overflow: hidden;
+      z-index: 6;
+      animation: sheetUp .18s ease both;
+    }
+
+    .sheet-header {
+      padding: 14px 16px 8px;
+      border-bottom: 1px solid #eef0f2;
+    }
+
+    .sheet-title {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .sheet-subtitle {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .sheet-option {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 0;
+      border-bottom: 1px solid #f0f2f4;
+      background: #fff;
+      padding: 13px 16px;
+      color: #1f2937;
+      font-weight: 700;
+      text-align: start;
+    }
+
+    .dashboard-shell {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-height: calc(100vh - 112px);
+      display: grid;
+      grid-template-columns: 248px 1fr;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      background: var(--navy);
+      color: #c7d2e4;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar .logo-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-list button {
+      border: 0;
+      background: transparent;
+      color: #c7d2e4;
+      border-radius: 8px;
+      padding: 10px 11px;
+      text-align: start;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-list button.active {
+      background: #1fa855;
+      color: #fff;
+    }
+
+    .sidebar-foot {
+      margin-top: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      font-size: 12px;
+    }
+
+    .user-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #edf6f0;
+      color: #176d3a;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .dash-main {
+      min-width: 0;
+      background: #f6f8fb;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .screen-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 22px;
+      margin: 0;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0;
+      font-weight: 800;
+    }
+
+    .head-actions {
+      margin-inline-start: auto;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #344054;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+    }
+
+    .btn.primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .btn.navy {
+      background: var(--navy);
+      border-color: var(--navy);
+      color: #fff;
+    }
+
+    .btn.amber {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: #fff;
+    }
+
+    .btn.danger {
+      color: var(--red);
+      border-color: #efc8c4;
+      background: #fff;
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .52;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      animation: pulse 1.4s infinite;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11.5px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.green { background: #e6f6eb; color: #177a3e; }
+    .badge.red { background: #fae9e7; color: #a83329; }
+    .badge.gray { background: #eef2f7; color: #536171; }
+    .badge.blue { background: #e8f1fb; color: #2a5da8; }
+    .badge.amber { background: #fff3da; color: #906009; }
+    .badge.dashed { background: #f8fafc; color: #6b7280; border: 1px dashed #a8b2c1; }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid.stats {
+      grid-template-columns: repeat(5, minmax(130px, 1fr));
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      min-height: 108px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .stat .value {
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 900;
+      margin: 8px 0 3px;
+    }
+
+    .stat .sub {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .stat.green { border-top: 4px solid var(--green); }
+    .stat.amber { border-top: 4px solid var(--amber); }
+    .stat.red { border-top: 4px solid var(--red); }
+    .stat.gray { border-top: 4px solid #8a94a6; }
+
+    .banner {
+      border-radius: 8px;
+      border: 1px solid;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-weight: 800;
+    }
+
+    .banner.green {
+      color: #176d3a;
+      background: #ecf9f0;
+      border-color: #b9e4c6;
+    }
+
+    .banner.amber {
+      color: #805300;
+      background: #fff3d8;
+      border-color: #f3c978;
+    }
+
+    .banner .banner-actions {
+      margin-inline-start: auto;
+      display: flex;
+      gap: 8px;
+    }
+
+    .mode-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      margin-bottom: 14px;
+    }
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 48px;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .bar {
+      height: 10px;
+      background: #e8edf4;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .table {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr .9fr 1fr 1.4fr .8fr .9fr;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid #edf1f5;
+      min-height: 54px;
+      font-size: 12.5px;
+    }
+
+    .table-row:last-child {
+      border-bottom: 0;
+    }
+
+    .table-row.header {
+      background: #f8fafc;
+      color: var(--muted);
+      font-weight: 900;
+      min-height: 42px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .field-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 92px;
+      line-height: 1.5;
+    }
+
+    .poll-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .poll-item {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.3fr) .65fr .65fr .75fr 1fr;
+      gap: 14px;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 74px;
+    }
+
+    .progress {
+      height: 8px;
+      background: #e8edf4;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 7px;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      background: var(--green);
+      border-radius: 999px;
+    }
+
+    .decision-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .decision-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-right: 4px solid var(--amber);
+      border-radius: 8px;
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .radio-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .radio-pill {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .radio-pill.active {
+      border-color: var(--amber);
+      background: #fff5dd;
+      color: #855600;
+    }
+
+    .simulation {
+      position: sticky;
+      top: 88px;
+    }
+
+    .big-result {
+      margin-top: 10px;
+      padding: 16px;
+      border-radius: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+
+    .big-result strong {
+      display: block;
+      font-size: 28px;
+      margin-top: 5px;
+    }
+
+    .comments-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .comment-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .comment-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, .42);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: min(480px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 30px 80px rgba(15, 23, 42, .35);
+    }
+
+    .empty-state {
+      background: #fff;
+      border: 1px dashed #b8c4d4;
+      border-radius: 8px;
+      min-height: 260px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+    }
+
+    .mfa-wrap {
+      min-height: calc(100vh - 160px);
+      display: grid;
+      place-items: center;
+    }
+
+    .mfa-card {
+      width: min(420px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .mfa-code {
+      direction: ltr;
+      text-align: center;
+      letter-spacing: 10px;
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes sheetUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: .35; transform: scale(.92); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    @media (max-width: 1180px) {
+      .grid.stats { grid-template-columns: repeat(3, minmax(130px, 1fr)); }
+      .content-grid,
+      .form-grid,
+      .decision-layout { grid-template-columns: 1fr; }
+      .simulation { position: static; }
+      .comments-grid { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        height: auto;
+        min-height: 68px;
+        flex-wrap: wrap;
+        padding: 12px;
+      }
+
+      .brand {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .version-pill {
+        margin-inline-start: 0;
+      }
+
+      .workspace {
+        padding: 12px;
+      }
+
+      .whatsapp-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .control-panel {
+        position: static;
+      }
+
+      .scenario-tabs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .phone {
+        min-height: 680px;
+      }
+
+      .dashboard-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        padding: 14px;
+      }
+
+      .nav-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .nav-list button {
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .sidebar-foot {
+        display: none;
+      }
+
+      .dash-main {
+        padding: 14px;
+      }
+
+      .grid.stats,
+      .comments-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .table {
+        overflow-x: auto;
+      }
+
+      .table-row {
+        min-width: 920px;
+      }
+
+      .poll-item {
+        grid-template-columns: 1fr;
+      }
+
+      .radio-group {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">מל</div>
+        <div>
+          <div class="brand-title">משאלי מליאה</div>
+          <div class="brand-subtitle">סוכן וואטסאפ ודשבורד ניהול</div>
+        </div>
+      </div>
+      <div class="surface-tabs" aria-label="בחירת סביבת מוקאפ">
+        <button id="tab-wa" class="active" data-surface="whatsapp" title="תצוגת חוויית המצביע בוואטסאפ">וואטסאפ</button>
+        <button id="tab-dash" data-surface="dashboard" title="תצוגת דשבורד הניהול">דשבורד</button>
+      </div>
+      <div class="version-pill">v1.2 · בעד מותנה · החלטת מנהל</div>
+    </header>
+
+    <main class="workspace">
+      <section id="surface-whatsapp" class="surface active">
+        <div class="whatsapp-layout">
+          <aside class="control-panel">
+            <h1 class="panel-title">חוויית מצביע</h1>
+            <div class="panel-meta">הצבעה אישית ב-WhatsApp, בלי קישור חיצוני ובלי אפליקציה.</div>
+            <div class="scenario-tabs" id="wa-scenarios">
+              <button class="active" data-wa="flow"><span>זרימה מלאה</span><span>1</span></button>
+              <button class="amber" data-wa="classifyReminder"><span>תזכורת סיווג</span><span>3א</span></button>
+              <button data-wa="noteConfirm"><span>אישור הערה</span><span>4</span></button>
+              <button class="amber" data-wa="conditionConfirm"><span>אישור תנאי</span><span>4</span></button>
+              <button data-wa="pollReminder"><span>תזכורת הצבעה</span><span>5</span></button>
+              <button class="danger" data-wa="closed"><span>משאל סגור</span><span>6</span></button>
+              <button class="danger" data-wa="unregistered"><span>מספר לא רשום</span><span>7</span></button>
+            </div>
+            <div class="tiny-note">
+              בתרחיש המלא אפשר לפתוח את רשימת הבחירה, לבחור "בעד עם הערות", לשלוח הערה ולסווג אותה כהערה בלבד או כתנאי.
+            </div>
+          </aside>
+
+          <div class="phone-zone">
+            <div class="phone" aria-label="מוקאפ וואטסאפ">
+              <div class="phone-screen">
+                <header class="wa-header">
+                  <div class="wa-avatar">מל</div>
+                  <div>
+                    <div class="wa-name">משאלי המליאה</div>
+                    <div class="wa-status">חשבון עסקי מאומת · ועדת הבחירות</div>
+                  </div>
+                  <div class="wa-actions" aria-hidden="true"><span>⌕</span><span>⋮</span></div>
+                </header>
+                <div id="chat" class="chat"></div>
+                <div class="wa-input">
+                  <div id="wa-input-text" class="field">הודעה</div>
+                  <button id="send-comment" class="send" title="שליחה">➤</button>
+                </div>
+                <div id="choice-sheet" class="bottom-sheet" hidden>
+                  <div class="sheet-header">
+                    <div class="sheet-title">שאלה 1 מתוך 2</div>
+                    <div class="sheet-subtitle">אישור תקן הוועדה לשנת 2026</div>
+                  </div>
+                  <button class="sheet-option" data-pick="for">✅ בעד</button>
+                  <button class="sheet-option" data-pick="forComment">📝 בעד עם הערות</button>
+                  <button class="sheet-option" data-pick="against">❌ נגד</button>
+                  <button class="sheet-option" data-pick="abstain">⚪ נמנע</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="surface-dashboard" class="surface">
+        <div class="dashboard-shell">
+          <aside class="sidebar">
+            <div class="logo-line">
+              <div class="brand-mark">מל</div>
+              <div>
+                <div style="font-weight: 800; color: #fff;">דשבורד משאלים</div>
+                <div style="font-size: 11px; color: #93a1bc;">ועדת הבחירות המרכזית</div>
+              </div>
+            </div>
+            <nav class="nav-list" id="dash-nav" aria-label="ניווט דשבורד">
+              <button data-screen="login">🔐 כניסה</button>
+              <button data-screen="polls">📋 משאלים</button>
+              <button data-screen="create">＋ יצירה</button>
+              <button class="active" data-screen="results">📊 תוצאות</button>
+              <button data-screen="decision">⚠️ החלטה</button>
+              <button data-screen="comments">💬 הערות</button>
+              <button data-screen="members">👥 חברים</button>
+            </nav>
+            <div class="sidebar-foot">
+              <div class="user-dot">רק</div>
+              <div>
+                <div style="font-weight: 800; color: #fff;">רונית קדם</div>
+                <div style="color: #93a1bc;">עורכת משאלים</div>
+              </div>
+            </div>
+          </aside>
+
+          <div class="dash-main">
+            <section id="screen-login" class="screen">
+              <div class="mfa-wrap">
+                <div class="mfa-card">
+                  <div class="brand" style="margin-bottom: 18px;">
+                    <div class="brand-mark">מל</div>
+                    <div>
+                      <div class="brand-title">כניסה לדשבורד</div>
+                      <div class="brand-subtitle">דוא"ל ארגוני ואימות דו-שלבי</div>
+                    </div>
+                  </div>
+                  <div class="field-stack">
+                    <label>דוא"ל
+                      <input value="ronit.kedem@votes.gov.il" dir="ltr">
+                    </label>
+                    <label>סיסמה
+                      <input value="••••••••••" type="password" dir="ltr">
+                    </label>
+                    <label>קוד MFA
+                      <input class="mfa-code" value="492817" maxlength="6">
+                    </label>
+                    <button class="btn primary" data-screen-jump="polls">כניסה</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="screen-polls" class="screen">
+              <div class="screen-head">
+                <h1>משאלים</h1>
+                <span class="badge green">פעיל</span>
+                <span class="badge amber">ממתין להחלטת מנהל</span>
+                <div class="head-actions">
+                  <button class="btn" id="toggle-empty">מצב ריק</button>
+                  <button class="btn primary" data-screen-jump="create">＋ משאל חדש</button>
+                </div>
+              </div>
+
+              <div id="polls-list" class="poll-list"></div>
+              <div id="empty-polls" class="empty-state" hidden>
+                <div>
+                  <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
+                  <h2>עדיין אין משאלים</h2>
+                  <p class="muted" style="margin: 8px 0 18px;">המסך הראשון של העורך מוביל ישירות ליצירת המשאל הראשון.</p>
+                  <button class="btn primary" data-screen-jump="create">＋ יצירת משאל ראשון</button>
+                </div>
+              </div>
+            </section>
+
+            <section id="screen-create" class="screen">
+              <div class="screen-head">
+                <h1>משאל חדש</h1>
+                <div class="head-actions">
+                  <button class="btn">שמירה כטיוטה</button>
+                  <button class="btn primary" data-screen-jump="results">פרסום ל-58 חברים</button>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="card">
+                  <div class="field-stack">
+                    <label>כותרת המשאל
+                      <input value="אישור תקן ותקציב הוועדה לשנת 2026">
+                    </label>
+                    <label>דברי הסבר
+                      <textarea>חברי המליאה מתבקשים להצביע על אישור תקן הוועדה ועל תקציב הפעילות לשנת 2026.</textarea>
+                    </label>
+                    <label>שאלה 1
+                      <input value="האם לאשר את תקן הוועדה לשנת 2026?">
+                    </label>
+                    <label>שאלה 2
+                      <input value="האם לאשר את תקציב הוועדה לשנת 2026?">
+                    </label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                      <label>מועד סגירה
+                        <input value="2026-07-06 18:00">
+                      </label>
+                      <label>תזכורות
+                        <select>
+                          <option>24 שעות ו-3 שעות לפני סגירה</option>
+                          <option>רק 3 שעות לפני סגירה</option>
+                        </select>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <h2 style="margin-bottom: 12px;">תצוגה מקדימה בוואטסאפ</h2>
+                  <div class="bubble bot" style="max-width: 100%; box-shadow: none; border: 1px solid #edf1f5;">
+                    <b>משאל: אישור תקן ותקציב הוועדה לשנת 2026</b><br>
+                    חבר/ת מליאה נכבד/ה, לפניך 2 שאלות להצבעה.<br>
+                    מועד סגירה: 6.7.2026, 18:00
+                    <button class="wa-button" style="margin-top: 10px;">התחל הצבעה</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="screen-results" class="screen active">
+              <div class="screen-head">
+                <h1>אישור תקן ותקציב הוועדה לשנת 2026</h1>
+                <span class="badge green">פעיל</span>
+                <span class="muted"><span class="live-dot"></span> עודכן לפני <span id="seconds-ago">3</span> שניות</span>
+                <div class="head-actions">
+                  <button class="btn">🔔 תזכורת לטרם-הצביעו</button>
+                  <button class="btn navy">⬇ ייצוא CSV</button>
+                  <button id="final-approve" class="btn primary" title="במצב ללא רוב, האישור נחסם עד החלטת מנהל">אשר תוצאה סופית</button>
+                </div>
+              </div>
+
+              <div class="mode-tabs" id="result-mode">
+                <button class="active" data-mode="blocked">אין רוב בלי המותנים</button>
+                <button data-mode="clear">רוב קיים בלי המותנים</button>
+              </div>
+
+              <div class="grid stats">
+                <div class="stat green">
+                  <div>
+                    <div class="label">בעד</div>
+                    <div class="value">26</div>
+                  </div>
+                  <div class="sub">מתוכם 4 עם הערה לפרוטוקול</div>
+                </div>
+                <div class="stat amber">
+                  <div>
+                    <div class="label">בעד מותנה</div>
+                    <div class="value">5</div>
+                  </div>
+                  <div class="sub">כולל 1 לא סווג</div>
+                </div>
+                <div class="stat red">
+                  <div>
+                    <div class="label">נגד</div>
+                    <div class="value">8</div>
+                  </div>
+                  <div class="sub">14% מהזכאים</div>
+                </div>
+                <div class="stat gray">
+                  <div>
+                    <div class="label">נמנע</div>
+                    <div class="value">3</div>
+                  </div>
+                  <div class="sub">5% מהזכאים</div>
+                </div>
+                <div class="stat gray">
+                  <div>
+                    <div class="label">טרם הצביעו</div>
+                    <div class="value">16</div>
+                  </div>
+                  <div class="sub">42 מתוך 58 הצביעו</div>
+                </div>
+              </div>
+
+              <div id="decision-banner" class="banner amber">
+                <span>⚠️ אין רוב ללא ההצבעות המותנות - נדרשת החלטת מנהל</span>
+                <div class="banner-actions">
+                  <button class="btn amber" data-screen-jump="decision">עבור לטיפול</button>
+                </div>
+              </div>
+
+              <div class="content-grid">
+                <div class="table" aria-label="טבלת הצבעות">
+                  <div class="table-row header">
+                    <div>שם</div><div>טלפון</div><div>הצבעה</div><div>סיווג</div><div>הערה</div><div>שעה</div><div>סטטוס</div>
+                  </div>
+                  <div id="votes-table"></div>
+                </div>
+                <div class="card">
+                  <h2>התפלגות לשאלה 2</h2>
+                  <div class="chart-row"><span>בעד</span><div class="bar"><span style="width: 45%; background: var(--green);"></span></div><b>26</b></div>
+                  <div class="chart-row"><span>מותנה</span><div class="bar"><span style="width: 9%; background: var(--amber);"></span></div><b>5</b></div>
+                  <div class="chart-row"><span>נגד</span><div class="bar"><span style="width: 14%; background: var(--red);"></span></div><b>8</b></div>
+                  <div class="chart-row"><span>נמנע</span><div class="bar"><span style="width: 5%; background: #8a94a6;"></span></div><b>3</b></div>
+                  <div class="chart-row"><span>טרם</span><div class="bar"><span style="width: 27%; background: #c7d0dd;"></span></div><b>16</b></div>
+                  <div style="margin-top: 18px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 13px;">
+                      <span>השתתפות</span><span>42 / 58</span>
+                    </div>
+                    <div class="progress"><span style="width: 72%;"></span></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="screen-decision" class="screen">
+              <div class="screen-head">
+                <h1>החלטת מנהל</h1>
+                <span class="badge amber">5 הצבעות מותנות</span>
+                <div class="head-actions">
+                  <button class="btn navy" id="open-confirm">אשר החלטות</button>
+                </div>
+              </div>
+
+              <div class="banner amber">
+                <span>בעד: 26 | נדרש לרוב: 30 | מותנות: 5 | ההחלטה שלך תקבע את התוצאה</span>
+              </div>
+
+              <div class="decision-layout">
+                <div class="grid" id="decision-list"></div>
+                <aside class="card simulation">
+                  <h2>סימולציית תוצאה</h2>
+                  <div class="chart-row"><span>בעד ודאי</span><div class="bar"><span style="width: 87%; background: var(--green);"></span></div><b>26</b></div>
+                  <div class="chart-row"><span>מתקבלים</span><div class="bar"><span id="accepted-bar" style="width: 0%; background: var(--amber);"></span></div><b id="accepted-count">0</b></div>
+                  <div class="big-result">
+                    תוצאה צפויה
+                    <strong id="expected-result" style="color: var(--red);">לא עובר</strong>
+                    <div id="expected-sub" class="muted" style="font-size: 12px;">חסרים 4 קולות לרוב</div>
+                  </div>
+                </aside>
+              </div>
+            </section>
+
+            <section id="screen-comments" class="screen">
+              <div class="screen-head">
+                <h1>בורד הערות</h1>
+                <span class="badge blue">4 הערות לפרוטוקול</span>
+                <span class="badge amber">5 תנאים</span>
+              </div>
+              <div class="comments-grid" id="comments-grid"></div>
+            </section>
+
+            <section id="screen-members" class="screen">
+              <div class="screen-head">
+                <h1>חברי מליאה והרשאות</h1>
+                <div class="head-actions">
+                  <button class="btn">⬆ ייבוא CSV</button>
+                  <button class="btn primary">＋ הוספת חבר</button>
+                </div>
+              </div>
+              <div class="table">
+                <div class="table-row header" style="grid-template-columns: 1.4fr 1fr .8fr 1fr;">
+                  <div>שם רשמי</div><div>טלפון</div><div>סטטוס</div><div>פעולות</div>
+                </div>
+                <div class="table-row" style="grid-template-columns: 1.4fr 1fr .8fr 1fr;"><div>אבי כהן</div><div dir="ltr">050-1234567</div><div><span class="badge green">פעיל</span></div><div><button class="btn">השבתה</button></div></div>
+                <div class="table-row" style="grid-template-columns: 1.4fr 1fr .8fr 1fr;"><div>רות לוי</div><div dir="ltr">052-2345678</div><div><span class="badge green">פעיל</span></div><div><button class="btn">השבתה</button></div></div>
+                <div class="table-row" style="grid-template-columns: 1.4fr 1fr .8fr 1fr;"><div>תמר שפירא</div><div dir="ltr">052-8901234</div><div><span class="badge gray">הוסר</span></div><div><button class="btn">שחזור</button></div></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-label="אישור החלטות">
+    <div class="modal">
+      <h2 style="margin-bottom: 10px;">אישור החלטות מנהל</h2>
+      <p class="muted" style="line-height: 1.6;">ההחלטות יתועדו בלוג הביקורת ובפרוטוקול בשמך. לאחר האישור ניתן יהיה לאשר תוצאה סופית.</p>
+      <div style="display: flex; gap: 10px; justify-content: flex-start; margin-top: 18px;">
+        <button class="btn navy" id="confirm-decisions">אישור</button>
+        <button class="btn" id="close-modal">ביטול</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      surface: 'whatsapp',
+      wa: 'flow',
+      flowStep: 'start',
+      dash: 'results',
+      resultMode: 'blocked',
+      emptyPolls: false,
+      decisions: {
+        1: 'pending',
+        2: 'pending',
+        3: 'pending',
+        4: 'pending',
+        5: 'pending'
+      }
+    };
+
+    const votes = [
+      { name: 'אבי כהן', phone: '050-1234567', vote: 'בעד', vk: 'green', cls: '—', clsBadge: 'gray', note: '—', time: '09:41', status: '' },
+      { name: 'רות לוי', phone: '052-2345678', vote: 'בעד', vk: 'green', cls: '💬 הערה', clsBadge: 'blue', note: 'לעדכן את סעיף ההסברה.', time: '09:44', status: 'עודכנה' },
+      { name: 'יעקב שמעוני', phone: '050-1122334', vote: 'בעד מותנה', vk: 'amber', cls: '⚠️ תנאי', clsBadge: 'amber', note: 'בתנאי שתוצג השוואה מול 2025.', time: '10:08', status: 'דורש הכרעה' },
+      { name: 'דינה אברהמי', phone: '054-3344556', vote: 'בעד', vk: 'green', cls: '💬 הערה', clsBadge: 'blue', note: 'לוודא תגבור אבטחת מידע.', time: '10:26', status: '' },
+      { name: 'שרה גולן', phone: '053-6789012', vote: 'בעד מותנה', vk: 'amber', cls: '◌ לא סווג', clsBadge: 'dashed', note: '(הערה נשלחה, סיווג לא נענה)', time: '10:31', status: 'נחשב מותנה' },
+      { name: 'דוד פרץ', phone: '054-3456789', vote: 'נגד', vk: 'red', cls: '—', clsBadge: 'gray', note: '—', time: '10:42', status: '' },
+      { name: 'נועה פרידמן', phone: '050-0123456', vote: 'נמנע', vk: 'gray', cls: '—', clsBadge: 'gray', note: '—', time: '10:45', status: '' },
+      { name: 'אליהו ברק', phone: '050-7890123', vote: 'טרם הצביע', vk: 'gray', cls: '—', clsBadge: 'gray', note: '—', time: '—', status: 'לא נמסר' },
+      { name: 'תמר שפירא', phone: '052-8901234', vote: 'בעד', vk: 'green', cls: '—', clsBadge: 'gray', note: '—', time: '10:51', status: 'הוסר' }
+    ];
+
+    const decisions = [
+      { id: 1, name: 'יעקב שמעוני', text: 'בעד, בתנאי שתוצג למליאה השוואה מול ביצוע התקציב של 2025 בתוך 30 יום.' },
+      { id: 2, name: 'מיכל בן דוד', text: 'תומכת רק אם סעיף ההסברה יעודכן לפני הפרסום לציבור.' },
+      { id: 3, name: 'אמיר כהן', text: 'מותנה בכך שהספק החיצוני יוצג לאישור נוסף בוועדת המשנה.' },
+      { id: 4, name: 'שרה גולן', text: 'הערה לא סווגה בזמן; מטופלת שמרנית כתנאי עד לבירור.' },
+      { id: 5, name: 'אורן לוי', text: 'מבקש התחייבות לעדכון רבעוני של סעיפי הלוגיסטיקה.' }
+    ];
+
+    const comments = [
+      { name: 'רות לוי', tag: '💬 הערה', badge: 'blue', status: 'פתוח', text: 'מבקשת לעדכן את סעיף ההסברה בהתאם לסיכום מישיבת המליאה האחרונה.' },
+      { name: 'יעקב שמעוני', tag: '⚠️ תנאי', badge: 'amber', status: 'ממתין להחלטה', text: 'בעד בתנאי שתוצג השוואה מול ביצוע התקציב של 2025 בתוך 30 יום.' },
+      { name: 'שרה גולן', tag: '◌ לא סווג', badge: 'dashed', status: 'נחשב מותנה', text: 'הערה נשלחה אך שאלת הסיווג לא נענתה בתוך 10 דקות.' },
+      { name: 'דינה אברהמי', tag: '💬 הערה', badge: 'blue', status: 'טופל', text: 'יש לוודא שהתקן כולל תגבור למערך אבטחת המידע.' },
+      { name: 'עופר ניסים', tag: '⚠️ תנאי', badge: 'amber', status: 'הוחזר למצביע', text: 'מציע מנגנון עדכון רבעוני לפני אישור סופי.' }
+    ];
+
+    const pollItems = [
+      { title: 'אישור תקן ותקציב הוועדה לשנת 2026', status: 'ממתין להחלטת מנהל', badge: 'amber', pct: 72, deadline: '6.7.2026, 18:00', action: 'טיפול' },
+      { title: 'אישור הרכב ועדות הקלפי האזוריות', status: 'סגור', badge: 'gray', pct: 91, deadline: '21.6.2026, 12:00', action: 'תוצאות' },
+      { title: 'נוהל ישיבות מליאה מקוונות', status: 'טיוטה', badge: 'blue', pct: 0, deadline: 'טרם נקבע', action: 'עריכה' }
+    ];
+
+    const chat = document.getElementById('chat');
+    const sheet = document.getElementById('choice-sheet');
+    const inputText = document.getElementById('wa-input-text');
+
+    function bubble(content, who = 'bot', warning = false) {
+      return `<div class="bubble ${who} ${warning ? 'warning' : ''}">${content}<span class="time">${who === 'me' ? '09:42 ✓✓' : '09:42'}</span></div>`;
+    }
+
+    function openingBubble() {
+      return bubble(`<b>משאל: אישור תקן ותקציב הוועדה לשנת 2026</b><br>
+        שלום אבי כהן, לפניך 2 שאלות להצבעה.<br>
+        מועד סגירה: 6.7.2026 בשעה 18:00.<br>
+        <button class="wa-button" id="start-vote">התחל הצבעה</button>`);
+    }
+
+    function questionBubble() {
+      return bubble(`<b>שאלה 1 מתוך 2</b><br>
+        האם לאשר את תקן הוועדה לשנת 2026?
+        <button class="wa-button" id="open-sheet">☰ הצבע</button>`);
+    }
+
+    function renderWhatsapp() {
+      sheet.hidden = true;
+      inputText.textContent = 'הודעה';
+      document.querySelectorAll('#wa-scenarios button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.wa === state.wa);
+      });
+
+      if (state.wa !== 'flow') state.flowStep = 'start';
+
+      if (state.wa === 'flow') {
+        let html = openingBubble();
+        if (state.flowStep !== 'start') html += questionBubble();
+        if (['pickedComment', 'commentSent', 'classifiedNote', 'classifiedCondition'].includes(state.flowStep)) {
+          html += bubble('📝 בעד עם הערות', 'me');
+          html += bubble('נא כתוב את הערתך בהודעה הבאה. ההערה תישמר לצד שאלה 1.');
+          inputText.textContent = state.flowStep === 'pickedComment' ? 'יש לוודא שהתקן כולל תגבור לאבטחת מידע' : 'הודעה';
+        }
+        if (['commentSent', 'classifiedNote', 'classifiedCondition'].includes(state.flowStep)) {
+          html += bubble('יש לוודא שהתקן כולל תגבור לאבטחת מידע', 'me');
+          html += bubble(`תודה. איך לסווג את דבריך?
+            <div class="wa-button-row">
+              <button class="wa-choice" data-classify="note">💬 הערה בלבד - תומך בכל מקרה</button>
+              <button class="wa-choice amber" data-classify="condition">⚠️ תנאי לתמיכתי</button>
+            </div>`);
+        }
+        if (state.flowStep === 'classifiedNote') {
+          html += bubble('הערה בלבד - תומך בכל מקרה', 'me');
+          html += bubble('<b>הצבעתך נקלטה: בעד</b> ✔<br>ההערה תובא לפרוטוקול.<br><button class="wa-button">שנה הצבעה</button>');
+        }
+        if (state.flowStep === 'classifiedCondition') {
+          html += bubble('תנאי לתמיכתי', 'me');
+          html += bubble('<b>הצבעתך נקלטה: בעד מותנה</b> ⚠️<br>התנאי יובא לדיון. אם יידרש, נחזור אליך.<br><button class="wa-button">שנה הצבעה</button>', 'bot', true);
+        }
+        chat.innerHTML = html;
+      }
+
+      if (state.wa === 'classifyReminder') {
+        chat.innerHTML = openingBubble() + questionBubble() +
+          bubble('📝 בעד עם הערות', 'me') +
+          bubble('מבקש לוודא שהתקציב כולל סעיף אבטחת מידע.', 'me') +
+          bubble(`טרם סיווגת את ההערה ששלחת לפני 10 דקות. ללא סיווג היא תיחשב כמותנית עד לבירור.
+            <div class="wa-button-row">
+              <button class="wa-choice">💬 הערה בלבד - תומך בכל מקרה</button>
+              <button class="wa-choice amber">⚠️ תנאי לתמיכתי</button>
+            </div>`, 'bot', true);
+      }
+
+      if (state.wa === 'noteConfirm') {
+        chat.innerHTML = openingBubble() + questionBubble() +
+          bubble('📝 בעד עם הערות', 'me') +
+          bubble('מבקשת לעדכן את סעיף ההסברה לפני הפרסום.', 'me') +
+          bubble('הערה בלבד - תומך בכל מקרה', 'me') +
+          bubble('<b>הצבעתך נקלטה: בעד</b> ✔<br>ההערה תובא לפרוטוקול.<br><button class="wa-button">שנה הצבעה</button>');
+      }
+
+      if (state.wa === 'conditionConfirm') {
+        chat.innerHTML = openingBubble() + questionBubble() +
+          bubble('📝 בעד עם הערות', 'me') +
+          bubble('בעד, בתנאי שתוצג השוואה מול ביצוע התקציב של 2025.', 'me') +
+          bubble('תנאי לתמיכתי', 'me') +
+          bubble('<b>הצבעתך נקלטה: בעד מותנה</b> ⚠️<br>התנאי יובא לדיון. אם יידרש, נחזור אליך.<br><button class="wa-button">שנה הצבעה</button>', 'bot', true);
+      }
+
+      if (state.wa === 'pollReminder') {
+        chat.innerHTML = bubble(`<b>תזכורת: המשאל נסגר בעוד 3 שעות</b><br>
+          טרם השלמת את ההצבעה במשאל "אישור תקן ותקציב הוועדה לשנת 2026".<br>
+          נותרו 2 שאלות.
+          <button class="wa-button">המשך הצבעה</button>`);
+      }
+
+      if (state.wa === 'closed') {
+        chat.innerHTML = bubble('אני רוצה להצביע במשאל', 'me') +
+          bubble(`תודה על פנייתך.<br>
+          המשאל נסגר היום בשעה 18:00 ולא ניתן עוד להצביע.<br><br>
+          <b>התוצאות הסופיות:</b><br>
+          שאלה 1 - אושרה<br>
+          ✅ 28 · ⚠️ 2 · ❌ 6 · ⚪ 4`);
+      }
+
+      if (state.wa === 'unregistered') {
+        chat.innerHTML = bubble('שלום, קיבלתי הפניה להצביע כאן', 'me') +
+          bubble('שלום,<br>מספר הטלפון שממנו פנית אינו רשום כחבר מליאה במערכת.<br>לפרטים ולעדכון פרטים יש לפנות למזכירות הוועדה.');
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function renderDashboard() {
+      document.querySelectorAll('#dash-nav button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.screen === state.dash);
+      });
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.toggle('active', screen.id === `screen-${state.dash}`);
+      });
+    }
+
+    function renderPolls() {
+      const list = document.getElementById('polls-list');
+      const empty = document.getElementById('empty-polls');
+      list.hidden = state.emptyPolls;
+      empty.hidden = !state.emptyPolls;
+      document.getElementById('toggle-empty').textContent = state.emptyPolls ? 'הצג רשימה' : 'מצב ריק';
+      list.innerHTML = pollItems.map(p => `
+        <div class="poll-item">
+          <div><b>${p.title}</b><div class="muted" style="font-size: 12px; margin-top: 4px;">2 שאלות</div></div>
+          <div><span class="badge ${p.badge}">${p.status}</span></div>
+          <div><b>${p.pct}%</b><div class="progress"><span style="width: ${p.pct}%;"></span></div></div>
+          <div class="muted">${p.deadline}</div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn" data-screen-jump="${p.action === 'טיפול' ? 'decision' : 'results'}">${p.action}</button>
+            <button class="btn">שכפול</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderVotes() {
+      document.getElementById('votes-table').innerHTML = votes.map(v => `
+        <div class="table-row">
+          <div><b>${v.name}</b></div>
+          <div dir="ltr">${v.phone}</div>
+          <div><span class="badge ${v.vk}">${v.vote}</span></div>
+          <div><span class="badge ${v.clsBadge}" title="${v.cls.includes('לא סווג') ? 'לא סווג נחשב מותנה לצורך בדיקת הכרעה' : ''}">${v.cls}</span></div>
+          <div class="muted">${v.note}</div>
+          <div>${v.time}</div>
+          <div>${v.status ? `<span class="badge ${v.status.includes('הכרעה') || v.status.includes('מותנה') ? 'amber' : v.status === 'לא נמסר' ? 'red' : 'gray'}">${v.status}</span>` : '—'}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderResultMode() {
+      const blocked = state.resultMode === 'blocked';
+      document.querySelectorAll('#result-mode button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === state.resultMode);
+      });
+      const banner = document.getElementById('decision-banner');
+      const finalApprove = document.getElementById('final-approve');
+      banner.className = `banner ${blocked ? 'amber' : 'green'}`;
+      banner.innerHTML = blocked
+        ? '<span>⚠️ אין רוב ללא ההצבעות המותנות - נדרשת החלטת מנהל</span><div class="banner-actions"><button class="btn amber" data-screen-jump="decision">עבור לטיפול</button></div>'
+        : '<span>✓ קיים רוב ללא ההצבעות המותנות - התוצאה ניתנת לאישור. המותנות יתועדו כקטגוריה נפרדת.</span>';
+      finalApprove.disabled = blocked;
+    }
+
+    function renderDecisions() {
+      document.getElementById('decision-list').innerHTML = decisions.map(item => `
+        <div class="decision-card">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <b>${item.name}</b>
+            <span class="badge amber">בעד מותנה</span>
+          </div>
+          <div class="muted" style="line-height: 1.55;">${item.text}</div>
+          <div class="radio-group">
+            <button class="radio-pill ${state.decisions[item.id] === 'accept' ? 'active' : ''}" data-decision="${item.id}" data-value="accept">קבל כבעד</button>
+            <button class="radio-pill ${state.decisions[item.id] === 'reject' ? 'active' : ''}" data-decision="${item.id}" data-value="reject">אל תספור</button>
+            <button class="radio-pill ${state.decisions[item.id] === 'return' ? 'active' : ''}" data-decision="${item.id}" data-value="return">פנה למצביע</button>
+          </div>
+        </div>
+      `).join('');
+
+      const accepted = Object.values(state.decisions).filter(v => v === 'accept').length;
+      const totalFor = 26 + accepted;
+      const passes = totalFor >= 30;
+      document.getElementById('accepted-count').textContent = accepted;
+      document.getElementById('accepted-bar').style.width = `${accepted * 20}%`;
+      document.getElementById('expected-result').textContent = passes ? 'עובר' : 'לא עובר';
+      document.getElementById('expected-result').style.color = passes ? 'var(--green)' : 'var(--red)';
+      document.getElementById('expected-sub').textContent = passes ? `בעד לאחר החלטה: ${totalFor}` : `חסרים ${30 - totalFor} קולות לרוב`;
+    }
+
+    function renderComments() {
+      document.getElementById('comments-grid').innerHTML = comments.map(c => `
+        <div class="comment-card">
+          <div class="comment-top">
+            <div class="user-dot">${c.name.split(' ').map(part => part[0]).join('').slice(0, 2)}</div>
+            <div>
+              <b>${c.name}</b>
+              <div class="muted" style="font-size: 12px;">היום, 10:08</div>
+            </div>
+          </div>
+          <div><span class="badge ${c.badge}">${c.tag}</span> <span class="badge gray">${c.status}</span></div>
+          <div style="line-height: 1.55; font-size: 13px;">${c.text}</div>
+          <div style="margin-top: auto;"><button class="btn">${c.status === 'טופל' ? 'החזר לטיפול' : 'סמן כטופל'}</button></div>
+        </div>
+      `).join('');
+    }
+
+    function renderAll() {
+      renderWhatsapp();
+      renderDashboard();
+      renderPolls();
+      renderVotes();
+      renderResultMode();
+      renderDecisions();
+      renderComments();
+    }
+
+    document.addEventListener('click', event => {
+      const surfaceBtn = event.target.closest('[data-surface]');
+      if (surfaceBtn) {
+        state.surface = surfaceBtn.dataset.surface;
+        document.querySelectorAll('[data-surface]').forEach(btn => btn.classList.toggle('active', btn.dataset.surface === state.surface));
+        document.getElementById('surface-whatsapp').classList.toggle('active', state.surface === 'whatsapp');
+        document.getElementById('surface-dashboard').classList.toggle('active', state.surface === 'dashboard');
+      }
+
+      const waBtn = event.target.closest('[data-wa]');
+      if (waBtn) {
+        state.wa = waBtn.dataset.wa;
+        state.flowStep = 'start';
+        renderWhatsapp();
+      }
+
+      if (event.target.id === 'start-vote') {
+        state.flowStep = 'question';
+        renderWhatsapp();
+      }
+
+      if (event.target.id === 'open-sheet') {
+        sheet.hidden = false;
+      }
+
+      const pick = event.target.closest('[data-pick]');
+      if (pick) {
+        sheet.hidden = true;
+        state.flowStep = pick.dataset.pick === 'forComment' ? 'pickedComment' : 'question';
+        renderWhatsapp();
+      }
+
+      if (event.target.id === 'send-comment' && state.wa === 'flow' && state.flowStep === 'pickedComment') {
+        state.flowStep = 'commentSent';
+        renderWhatsapp();
+      }
+
+      const classify = event.target.closest('[data-classify]');
+      if (classify) {
+        state.flowStep = classify.dataset.classify === 'note' ? 'classifiedNote' : 'classifiedCondition';
+        renderWhatsapp();
+      }
+
+      const nav = event.target.closest('[data-screen], [data-screen-jump]');
+      if (nav) {
+        state.dash = nav.dataset.screen || nav.dataset.screenJump;
+        state.surface = 'dashboard';
+        document.querySelectorAll('[data-surface]').forEach(btn => btn.classList.toggle('active', btn.dataset.surface === state.surface));
+        document.getElementById('surface-whatsapp').classList.remove('active');
+        document.getElementById('surface-dashboard').classList.add('active');
+        renderDashboard();
+      }
+
+      const mode = event.target.closest('[data-mode]');
+      if (mode) {
+        state.resultMode = mode.dataset.mode;
+        renderResultMode();
+      }
+
+      const decision = event.target.closest('[data-decision]');
+      if (decision) {
+        state.decisions[decision.dataset.decision] = decision.dataset.value;
+        renderDecisions();
+      }
+
+      if (event.target.id === 'toggle-empty') {
+        state.emptyPolls = !state.emptyPolls;
+        renderPolls();
+      }
+
+      if (event.target.id === 'open-confirm') {
+        document.getElementById('confirm-modal').classList.add('show');
+      }
+
+      if (event.target.id === 'close-modal' || event.target.id === 'confirm-decisions') {
+        document.getElementById('confirm-modal').classList.remove('show');
+        if (event.target.id === 'confirm-decisions') {
+          state.resultMode = 'clear';
+          state.dash = 'results';
+          renderDashboard();
+          renderResultMode();
+        }
+      }
+    });
+
+    setInterval(() => {
+      const el = document.getElementById('seconds-ago');
+      if (!el) return;
+      const current = Number(el.textContent || 1);
+      el.textContent = current >= 5 ? 1 : current + 1;
+    }, 1300);
+
+    renderAll();
+  </script>
+</body>
+</html>
